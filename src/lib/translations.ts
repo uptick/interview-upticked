@@ -1,0 +1,50 @@
+// Every user-facing string lives here, keyed by `<area>.<name>`.
+// See docs/conventions/code-style.md → Strings.
+const translations = {
+  'app.name': 'Upticked',
+  'nav.lists': 'Lists',
+  'lists.heading': 'Your lists',
+  'lists.memberCount': '{count} members',
+  'lists.memberCount_one': '1 member',
+  'lists.taskCount': '{count} tasks',
+  'lists.taskCount_one': '1 task',
+  'lists.empty': 'You are not a member of any list yet.',
+  'lists.open': 'Open',
+  'tasks.heading': 'Tasks',
+  'tasks.column.title': 'Task',
+  'tasks.column.status': 'Status',
+  'tasks.column.priority': 'Priority',
+  'tasks.column.dueDate': 'Due',
+  'tasks.column.assignee': 'Assignee',
+  'tasks.empty': 'Nothing to do here.',
+  'tasks.overdue': 'Overdue',
+  'tasks.dueToday': 'Due today',
+  'tasks.noDueDate': 'No due date',
+  'tasks.unassigned': 'Unassigned',
+  'tasks.filter.status': 'Status',
+  'tasks.filter.allStatuses': 'All statuses',
+  'tasks.loadFailed': "We couldn't load these tasks. Try again.",
+  'status.todo': 'To do',
+  'status.doing': 'In progress',
+  'status.done': 'Done',
+  'priority.low': 'Low',
+  'priority.medium': 'Medium',
+  'priority.high': 'High',
+  'members.heading': 'Shared with',
+  'members.emailLink': 'Email {name}',
+  'role.owner': 'Owner',
+  'role.member': 'Member',
+  'role.guest': 'Guest',
+  'savedViews.heading': 'Saved views',
+  'savedViews.empty': 'No saved views yet.',
+  'savedViews.apply': 'Apply',
+  'savedViews.columnSummary': '{count} columns',
+  'savedViews.columnSummary_one': '1 column',
+  'common.retry': 'Try again',
+  'common.loading': 'Loading…',
+} as const
+
+type TranslationKey = keyof typeof translations
+
+export { translations }
+export type { TranslationKey }
