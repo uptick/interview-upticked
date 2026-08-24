@@ -22,7 +22,7 @@ describe('task list', () => {
       within(table)
         .getAllByRole('columnheader')
         .map((header) => header.textContent),
-    ).toEqual(['Task', 'Status', 'Due', 'Priority'])
+    ).toEqual(['Task', 'Status', 'Due', 'Assignee', 'Priority'])
     expect(await taskTitles()).toContain('Retire the legacy export job')
   })
 
@@ -35,6 +35,15 @@ describe('task list', () => {
     await waitFor(async () => {
       expect(await taskTitles()).toEqual(['Retire the legacy export job'])
     })
+  })
+
+  it('filters the tasks by assignee', async () => {
+    renderRoute(TASKS_PATH)
+    await screen.findByRole('table')
+
+    await userEvent.selectOptions(screen.getByDisplayValue('All assignees'), 'mem-owen')
+
+    expect(await screen.findByRole('table')).toBeVisible()
   })
 
   it('applies the columns and filters of a saved view', async () => {
@@ -64,7 +73,10 @@ describe('task list', () => {
     renderRoute('/lists/list-onboarding/tasks')
 
     expect(await screen.findByRole('heading', { name: 'Client onboarding' })).toBeVisible()
-    await waitFor(() => expect(screen.getByText('Noor Haddad')).toBeVisible())
-    expect(screen.queryByRole('link', { name: /^Email / })).not.toBeInTheDocument()
+    const membersPanel = screen.getByRole('heading', { name: 'Shared with' }).closest('section')
+    if (!membersPanel) throw new Error('Members panel not found')
+
+    await waitFor(() => expect(within(membersPanel).getByText('Noor Haddad')).toBeVisible())
+    expect(within(membersPanel).queryByRole('link', { name: /^Email / })).not.toBeInTheDocument()
   })
 })

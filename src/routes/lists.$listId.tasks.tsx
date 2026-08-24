@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Button } from '~/ui/Button'
 import { Card } from '~/ui/Card'
@@ -11,8 +12,10 @@ import { TextLink } from '~/ui/TextLink'
 import { useList } from '~/features/lists/use-lists'
 import { canSeeMemberContactDetails } from '~/features/members/permissions'
 import { useListMembers } from '~/features/members/use-list-members'
+import { clearAll } from '~/features/saved-views/saved-view-store'
 import { SavedViewList } from '~/features/saved-views/SavedViewList'
 import { useSavedViews } from '~/features/saved-views/use-saved-views'
+import { AssigneeFilter } from '~/features/tasks/AssigneeFilter'
 import { DEFAULT_TASK_COLUMN_KEYS, buildTaskColumns } from '~/features/tasks/task-columns'
 import { useTasks } from '~/features/tasks/use-tasks'
 import { translate } from '~/lib/i18n'
@@ -46,13 +49,14 @@ const TaskListPage = () => {
   const { listId } = Route.useParams()
   const { status, view: activeViewId } = Route.useSearch()
   const navigate = Route.useNavigate()
+  const [assigneeId, setAssigneeId] = useState('')
 
   const { data: list } = useList(listId)
   const { data: members } = useListMembers(listId, {
     includeContactDetails: canSeeMemberContactDetails(list?.viewerRole),
   })
-  const { data: savedViews } = useSavedViews(listId)
-  const { data: tasks, isPending, isError, refetch } = useTasks(listId, { status })
+  const { data: savedViews, refetch: refetchSavedViews } = useSavedViews(listId)
+  const { data: tasks, isPending } = useTasks(listId, { status, assigneeId })
 
   const activeView = savedViews?.find((savedView) => savedView.id === activeViewId) ?? null
   const columns = buildTaskColumns(activeView?.columnKeys ?? DEFAULT_TASK_COLUMN_KEYS)
@@ -61,49 +65,58 @@ const TaskListPage = () => {
     navigate({ search: { status: savedView.filters.status, view: savedView.id } })
   }
 
+  const resetSavedViews = () => {
+    clearAll()
+    refetchSavedViews()
+  }
+
   return (
     <>
       <PageHeader
         title={list?.name ?? translate('tasks.heading')}
         actions={
-          <Select
-            label={translate('tasks.filter.status')}
-            value={status ?? ''}
-            options={STATUS_FILTER_OPTIONS}
-            onChange={(value) =>
-              navigate({
-                search: { status: isTaskStatus(value) ? value : undefined, view: activeViewId },
-              })
-            }
-          />
+          <Stack direction="row" gap="md" align="center">
+            <Select
+              label={translate('tasks.filter.status')}
+              value={status ?? ''}
+              options={STATUS_FILTER_OPTIONS}
+              onChange={(value) =>
+                navigate({
+                  search: { status: isTaskStatus(value) ? value : undefined, view: activeViewId },
+                })
+              }
+            />
+            <AssigneeFilter listId={listId} value={assigneeId} onChange={setAssigneeId} />
+          </Stack>
         }
       />
 
       <Stack gap="lg">
         <Card>
-          {isPending ? <Text tone="muted">{translate('common.loading')}</Text> : null}
-          {isError ? (
-            <Stack direction="row" gap="md" align="center">
-              <Text tone="muted">{translate('tasks.loadFailed')}</Text>
-              <Button onClick={() => refetch()}>{translate('common.retry')}</Button>
-            </Stack>
-          ) : null}
-          {tasks?.length === 0 ? <EmptyState message={translate('tasks.empty')} /> : null}
-          {tasks?.length ? (
+          {isPending ? (
+            <Text tone="muted">{translate('common.loading')}</Text>
+          ) : tasks?.length ? (
             <DataTable
               caption={translate('tasks.heading')}
               columns={columns}
               rows={tasks}
               getRowKey={(task) => task.id}
             />
-          ) : null}
+          ) : (
+            <EmptyState message={translate('tasks.empty')} />
+          )}
         </Card>
 
         <Card>
           <Stack gap="md">
-            <Text as="h2" size="lg" weight="semibold">
-              {translate('savedViews.heading')}
-            </Text>
+            <Stack direction="row" align="between" gap="md">
+              <Text as="h2" size="lg" weight="semibold">
+                {translate('savedViews.heading')}
+              </Text>
+              <Button variant="secondary" onClick={resetSavedViews}>
+                {translate('savedViews.reset')}
+              </Button>
+            </Stack>
             <SavedViewList views={savedViews ?? []} activeViewId={activeViewId ?? null} onApply={applyView} />
           </Stack>
         </Card>

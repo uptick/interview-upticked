@@ -19,7 +19,14 @@ const SavedViewList = ({ views, activeViewId, onApply }: SavedViewListProps) => 
       {views.map((view) => (
         <Stack as="li" key={view.id} direction="row" align="between" gap="md">
           <Stack gap="sm">
-            <Text weight="medium">{view.name}</Text>
+            <Stack direction="row" gap="sm" align="center">
+              <Text weight="medium">{view.name}</Text>
+              {view.id === activeViewId ? (
+                <span className="tw:rounded-full tw:bg-sky-100 tw:px-2 tw:py-0.5 tw:text-xs tw:text-sky-800">
+                  {translate('savedViews.active')}
+                </span>
+              ) : null}
+            </Stack>
             <Text size="sm" tone="muted">
               {translate('savedViews.columnSummary', { count: view.columnKeys.length })}
             </Text>
