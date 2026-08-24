@@ -1,0 +1,22 @@
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme) prefix(tw);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities) prefix(tw) source(none);
+
+/*
+  The utility scan is deliberately scoped to the design-system directory. A
+  `tw:` class written anywhere else in the app generates no CSS at all and will
+  silently do nothing. See docs/conventions/code-style.md → Styling.
+*/
+@source '../ui/**/*.{ts,tsx}';
+
+:root {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  background: #f6f7f9;
+  color: #1c2024;
+}
