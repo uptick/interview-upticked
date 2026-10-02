@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { mockApiPlugin } from './vite-plugin-mock-api.ts'
 
 export default defineConfig({
+  // Lets the app be served under a path, such as behind a proxy.
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     tanstackRouter({
       target: 'react',
