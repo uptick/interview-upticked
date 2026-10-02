@@ -1,4 +1,4 @@
-const API_ROOT = '/api'
+const API_ROOT = `${import.meta.env.BASE_URL}api`
 
 class ApiError extends Error {
   readonly status: number

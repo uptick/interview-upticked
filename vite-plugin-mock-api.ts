@@ -34,8 +34,12 @@ const mockApiPlugin = (): Plugin => {
     const module = await server.ssrLoadModule(HANDLERS_MODULE)
     const middleware = createMiddleware(...(module.handlers as RequestHandler[]))
 
+    // This runs ahead of vite's own middleware, so requests still carry the base.
+    const apiRoot = `${server.config.base}api/`
     server.middlewares.use((request, response, next) => {
-      if (!request.url?.startsWith('/api/')) return next()
+      if (!request.url?.startsWith(apiRoot)) return next()
+      // The handlers are written against the root, as the test suite serves them.
+      request.url = request.url.slice(server.config.base.length - 1)
       addExpressAccessors(request as unknown as ExpressLikeRequest)
       return middleware(request, response, next)
     })
